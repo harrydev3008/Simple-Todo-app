@@ -1,18 +1,25 @@
 package com.hisu.mytodoapp
 
 import android.content.Context
+import android.os.Handler
+import android.os.Looper
 import android.text.InputType
+import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
+import com.google.gson.Gson
 import com.hisu.mytodoapp.databinding.LayoutTodoItemBinding
 
-class TodoAdapter(private var todoList: List<TodoItem>) :
-    RecyclerView.Adapter<TodoAdapter.TodoViewHolder>() {
+class TodoAdapter(
+    private var context: Context,
+    private var todoList: MutableList<TodoItem> = mutableListOf<TodoItem>()
+) : RecyclerView.Adapter<TodoAdapter.TodoViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TodoViewHolder {
         return TodoViewHolder(
@@ -26,15 +33,23 @@ class TodoAdapter(private var todoList: List<TodoItem>) :
 
         LayoutTodoItemBinding.bind(holder.itemView).apply {
 
+            val imm: InputMethodManager =
+                context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+
             txtTodo.setText(todo.todo)
+
             txtTodo.imeOptions = EditorInfo.IME_ACTION_DONE
             txtTodo.setRawInputType(InputType.TYPE_CLASS_TEXT)
-            txtTodo.requestFocus()
+
+            if (TextUtils.isEmpty(txtTodo.text.toString())) {
+                txtTodo.requestFocus()
+                imm.toggleSoftInput(
+                    InputMethodManager.SHOW_FORCED,
+                    InputMethodManager.HIDE_IMPLICIT_ONLY
+                );
+            }
 
             txtTodo.setOnEditorActionListener(TextView.OnEditorActionListener { textView, actionId, keyEvent ->
-                val imm: InputMethodManager =
-                    textView.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-
                 if (EditorInfo.IME_ACTION_DONE == actionId || EditorInfo.IME_ACTION_UNSPECIFIED == actionId) {
 
                     if (txtTodo.text.toString().isEmpty()) {
@@ -43,15 +58,37 @@ class TodoAdapter(private var todoList: List<TodoItem>) :
                     }
 
                     todo.todo = txtTodo.text.toString()
-                    txtTodo.clearFocus()
 
-                    imm.hideSoftInputFromWindow(textView.windowToken, 0)
+                    notifyItemChanged(position)
+                    MySharedPreference(context).putTodo(Gson().toJson(todoList))
+
+                    imm.hideSoftInputFromWindow(txtTodo.windowToken, 0)
+                    txtTodo.clearFocus()
                     return@OnEditorActionListener true
                 }
 
-                imm.hideSoftInputFromWindow(textView.windowToken, 0)
+                txtTodo.clearFocus()
+                imm.hideSoftInputFromWindow(txtTodo.windowToken, 0)
                 return@OnEditorActionListener false
             })
+
+            cbxFinish.setOnCheckedChangeListener { button, isChecked ->
+                run {
+                    if (isChecked)
+                        txtTodo.setTextColor(ContextCompat.getColor(context, R.color.color_finish))
+                    else
+                        txtTodo.setTextColor(ContextCompat.getColor(context,
+                                R.color.color_not_finish))
+
+                    Handler(Looper.getMainLooper()).postDelayed({
+                        if (cbxFinish.isChecked) {
+                            todoList.removeAt(position)
+                            notifyItemRemoved(position)
+                            MySharedPreference(context).putTodo(Gson().toJson(todoList))
+                        }
+                    }, 2 * 1000)
+                }
+            }
         }
     }
 
