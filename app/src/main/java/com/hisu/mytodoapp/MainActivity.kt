@@ -2,7 +2,6 @@ package com.hisu.mytodoapp
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.hisu.mytodoapp.databinding.ActivityMainBinding
 
@@ -17,16 +16,15 @@ class MainActivity : AppCompatActivity() {
         mMainBinding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(mMainBinding.root);
 
-        todoList.add(TodoItem("Wash my pussy"))
-        todoList.add(TodoItem("Wash her pussy"))
-        todoList.add(TodoItem("Wash his pussy"))
-
         mTodoAdapter = TodoAdapter(todoList)
-        
+
         mMainBinding.apply {
             todoRecyclerView.adapter = mTodoAdapter
             todoRecyclerView.layoutManager = LinearLayoutManager(this@MainActivity)
-            todoRecyclerView.addItemDecoration(DividerItemDecoration(this@MainActivity, DividerItemDecoration.VERTICAL))
+            txtNewReminder.setOnClickListener {
+                todoList.add(TodoItem())
+                mTodoAdapter.notifyDataSetChanged()
+            }
         }
     }
 }

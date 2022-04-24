@@ -6,10 +6,23 @@
     android:orientation="vertical"
     tools:context=".MainActivity">
 
+    <TextView
+        android:id="@+id/test"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="My Todo List"
+        android:textSize="30dp"
+        android:layout_marginVertical="8dp"
+        android:layout_marginStart="4dp"
+        android:textColor="@color/primaryColor"
+        android:textStyle="bold"
+        android:layout_alignParentTop="true"/>
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/todo_recycler_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_below="@+id/test"
         android:layout_above="@+id/txt_new_reminder"
         android:padding="8dp" />
 
