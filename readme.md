@@ -1,6 +1,7 @@
 ## Simple Todo App
-**About this project**
-*This is just a simple todo app created while learning `Kotlin` - Inspired by the `iPhone's Reminders`*<br>
+**About this project** <br>
+*This is just a simple todo app created while learning `Kotlin` - Inspired by the `iPhone's Reminders`*
+
 **Features:**
   + Add new item
   + Rearrange 
