@@ -37,11 +37,12 @@ class TodoAdapter(
                 context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
 
             txtTodo.setText(todo.todo)
+            txtTodo.clearFocus()
 
             txtTodo.imeOptions = EditorInfo.IME_ACTION_DONE
             txtTodo.setRawInputType(InputType.TYPE_CLASS_TEXT)
 
-            if (TextUtils.isEmpty(txtTodo.text.toString())) {
+            if (txtTodo.text.toString().isEmpty()) {
                 txtTodo.requestFocus()
                 imm.toggleSoftInput(
                     InputMethodManager.SHOW_FORCED,
@@ -61,14 +62,10 @@ class TodoAdapter(
 
                     notifyItemChanged(position)
                     MySharedPreference(context).putTodo(Gson().toJson(todoList))
-
-                    imm.hideSoftInputFromWindow(txtTodo.windowToken, 0)
-                    txtTodo.clearFocus()
-                    return@OnEditorActionListener true
                 }
 
-                txtTodo.clearFocus()
                 imm.hideSoftInputFromWindow(txtTodo.windowToken, 0)
+                txtTodo.clearFocus()
                 return@OnEditorActionListener false
             })
 
@@ -77,8 +74,12 @@ class TodoAdapter(
                     if (isChecked)
                         txtTodo.setTextColor(ContextCompat.getColor(context, R.color.color_finish))
                     else
-                        txtTodo.setTextColor(ContextCompat.getColor(context,
-                                R.color.color_not_finish))
+                        txtTodo.setTextColor(
+                            ContextCompat.getColor(
+                                context,
+                                R.color.color_not_finish
+                            )
+                        )
 
                     Handler(Looper.getMainLooper()).postDelayed({
                         if (cbxFinish.isChecked) {

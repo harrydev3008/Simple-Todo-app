@@ -25,10 +25,7 @@ class MainActivity : AppCompatActivity() {
         getTodoList(sharedPreference.getTodo())
         mTodoAdapter = TodoAdapter(this, todoList)
 
-        val simpleCallBack = object : ItemTouchHelper.SimpleCallback(
-            ItemTouchHelper.UP or
-                    ItemTouchHelper.DOWN, 0
-        ) {
+        val itemDragAndDropCallBack = object : DragAndDropCallBack() {
             override fun onMove(
                 recyclerView: RecyclerView,
                 viewHolder: RecyclerView.ViewHolder,
@@ -39,22 +36,29 @@ class MainActivity : AppCompatActivity() {
 
                 Collections.swap(todoList, from, to);
                 mTodoAdapter.notifyItemMoved(from, to)
-
                 sharedPreference.putTodo(Gson().toJson(todoList))
 
                 return false
             }
+        }
 
+        val swipeToDeleteCallBack = object : SwipeToDeleteCallBack() {
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                val pos = viewHolder.adapterPosition
+                todoList.removeAt(pos)
+                mTodoAdapter.notifyItemRemoved(pos)
+                sharedPreference.putTodo(Gson().toJson(todoList))
             }
         }
 
-        val itemTouchHelper = ItemTouchHelper(simpleCallBack)
+        val itemSwipeHelper = ItemTouchHelper(swipeToDeleteCallBack)
+        val itemDragAndDropHelper = ItemTouchHelper(itemDragAndDropCallBack)
 
         mMainBinding.apply {
             todoRecyclerView.adapter = mTodoAdapter
             todoRecyclerView.layoutManager = LinearLayoutManager(this@MainActivity)
-            itemTouchHelper.attachToRecyclerView(todoRecyclerView)
+            itemDragAndDropHelper.attachToRecyclerView(todoRecyclerView)
+            itemSwipeHelper.attachToRecyclerView(todoRecyclerView)
 
             txtNewReminder.setOnClickListener {
                 todoList.add(TodoItem())
